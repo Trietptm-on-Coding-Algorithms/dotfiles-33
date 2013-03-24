@@ -1,0 +1,39 @@
+#!/bin/sh
+
+source $HOME/.functions
+
+lt=$'\e[1;34m'
+dk=$'\e[0;34m'
+tx=$'\e[1;34m'
+ec=$'\e[0m'
+
+genericsysinfo >/dev/null 2>&1
+windowmanagerinfo >/dev/null 2>&1
+memoryinfo >/dev/null 2>&1
+swapinfo >/dev/null 2>&1
+diskinfo >/dev/null 2>&1
+
+echo ${lt}""
+echo "                 +"
+echo "                 #                 "${tx}"User:"${ec} "${user}"${lt}
+echo "                ###                "${tx}"Hostname:"${ec} "${hostname}"${lt}
+echo "               #####               "${tx}"Distro:"${ec} "${distro} ${arch}"${lt}
+echo "               ######              "${tx}"Kernel:"${ec} "${kernel}"${lt}
+echo "              ; #####;             "${tx}"Uptime:"${ec} "${uptime}"${lt}
+echo "             +##.#####             "${tx}"Window Manager:"${ec} "${wm}"${lt}
+echo "            +##########            "${tx}"Screen Resolution:"${ec} "${res}"${lt}
+echo "           #####"${dk}"######"${lt}"##;          "${tx}"Shell:"${ec} "${shell}"${lt}
+echo "          ###"${dk}"############"${lt}"+         "${tx}"Terminal:"${ec} "${term}"${lt}
+echo "         #"${dk}"######   #######         "${tx}"Editor:"${ec} "$editor"${dk}
+echo "       .######;     ;###;\`.       "       ${tx}"Browser:"${ec} "$browser"${dk}
+echo "      .#######;     ;#####.       "        ${tx}"Font:"${ec} "$font"${dk}
+echo "      #########.   .########\`      "${tx}"Packages:"${ec} "$packages"${lt}
+echo "     ######'           '######     "${tx}"CPU:"${ec} "${cpu}"${lt}
+echo "    ;####                 ####;    "${tx}"RAM:"${ec} "${actusedmem}M/${totalmem}M ($actusedmemper%)"${lt}
+echo "    ##'                     '##    "${tx}"Disk:"${ec} "${useddisk}G/${totaldisk}G ($useddiskper%)"${lt}
+echo "   #'                         \`#"
+echo "  '                            \`${ec}"
+echo " "
+#${shot}
+
+

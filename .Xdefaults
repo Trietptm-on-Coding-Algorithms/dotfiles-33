@@ -1,0 +1,96 @@
+! generic
+URxvt*buffered:			true
+URxvt*underlineColor:		white
+URxvt.depth:			32
+URxvt.geometry:			81x24
+URxvt.transparent:		false
+URxvt.fading:			40
+URxvt.urgentOnBell:		true
+URxvt.visualBell:		true
+URxvt.loginShell:		true
+URxvt.saveLines:		9999
+URxvt.lineSpace:		0
+URxvt*scrollBar:		false
+URxvt*loginShell:		true
+URxvt*termName:			rxvt-unicode
+URxvt.perl-ext-common:		default,matcher
+URxvt.urlLauncher:		/usr/bin/firefox
+URxvt*matcher.button:		1
+URxvt.cursorColor:		#5E468C
+URxvt.internalBorder:		14
+
+! colors
+URxvt*background:		#000000
+URxvt*foreground:		#DDDDDD
+URxvt*inheritPixmap:		true
+URxvt*shading:			10
+#include "/home/theram/.colors/dark"
+!#include "/home/theram/.colors/light"
+!#include "/home/theram/.colors/bright"
+!#include "/home/theram/.colors/low"
+!#include "/home/theram/.colors/old"
+!#include "/home/theram/.colors/soft"
+!#include "/home/theram/.colors/washed"
+!#include "/home/theram/.colors/lich"
+!#include "/home/theram/.colors/milomouse"
+!#include "/home/theram/.colors/rab"
+!#include "/home/theram/.colors/reasons"
+!#include "/home/theram/.colors/zenburn"
+
+! fonts
+URxvt.allow_bold:           	true
+URxvt.font:			xft:inconsolata:size=10:antialias=true
+
+! scrollbar
+URxvt.scrollStyle:		rxvt
+URxvt.scrollBar:		false
+
+! perl extensions
+URxvt.perl-ext-common:		default,matcher
+URxvt.matcher.button:		1
+URxvt.urlLauncher:		x-www-browser
+
+! tabs
+URxvt.tabbed.tabbar-fg:		8
+URxvt.tabbed.tabbar-bg:		11
+URxvt.tabbed.tab-fg:		11
+URxvt.tabbed.tab-bg:		8
+
+! cursor
+URxvt.cursorBlink:		true
+URxvt.cursorColor:		#657b83
+URxvt.cursorUnderline:		true
+
+! pointer
+URxvt.pointerBlank:		true
+
+! borderless and no scrollbar
+URxvt*scrollBar_right:		false
+URxvt*scrollBar:		false
+URxvt*borderLess:		false
+
+! transparency stuff
+URxvt*inheritPixmap:		false
+URxvt*tintColor:		#FFFFFF
+URxvt*shading:			90
+
+! clickable links
+URxvt.perl-ext-common:		default,matcher
+URxvt.matcher.button:		1
+URxvt.matcher.rend.0:		fg16 RS_Uline
+
+! -- dzen2 settings -- !
+dzen2.font:			inconsolata:medium:size=10
+dzen2.foreground:		#899CA1
+dzen2.background:		#121212
+
+!-- xft settings -- !
+Xft.dpi:			96
+Xft.antialias:			true
+Xft.rgba:			rgb
+Xft.hinting:			true
+Xft.hinstyle:			hintslight
+Xft.autohint:			0
+Xft.lcdfilter:			lcddefault
+
+

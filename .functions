@@ -1,0 +1,343 @@
+lfreq() { ## show letter frequencies for $1
+  [ $# -ne 1 ] && echo "USAGE: lfreq <file>" && return 1
+  cat $1 | awk -vFS="" '{for(i=1;i<=NF;i++){if($i~/[a-zA-Z]/){w[tolower($i)]++}}}END{for(i in w) print i,w[i]}' | sort | cut -c 3- | spark | lolcat
+}
+
+sgmemusage() { ## show memory usage graph
+  for mem in $(egrep '(MemFree|Buffers|Cached|Slab|PageTables|SwapCached)' /proc/meminfo | egrep -o '[0-9]+'); do not_apps=$((not_apps+mem)); done ; spark $((total-not_apps)) $total 0
+}
+
+sgping() { ## show a ping response time graph
+  [ $# -ne 1 ] && echo "USAGE: sgping <host>" && return 1
+  ping -c 10 $1 | tee >(grep -oP 'time=\K\S*' | spark | lolcat)
+}
+
+archlinux() { ## displays a sweet ArchLinux banner
+echo -e "\e[0;36m              _                                   _     _ _                 
+          _=(SDGJT=_                             | |   | (_)                 
+        _GTDJHGGFCVS)                _ _ _ __ ___| |__ | |_ _ __  _   ___  __
+       ,GTDJGGDTDFBGX0             / _\` | '__/ __| '_ \| | | '_ \| | | \ \/ /
+      JDJDIJHRORVFSBSVL\e[0;37m-=+=,_\e[0;36m     | (_| | | | (__| | | | | | | | | |_| |>  <
+     IJFDUFHJNXIXCDXDSV,\e[0;37m  \"DEBL\e[0;36m    \__,_|_|  \___|_| |_|_|_|_| |_|\__,_/_/\_\ 
+    |LKDSDJTDU=OUSCSBFLD.\e[0;37m   '?ZWX,\e[0;36m
+    LMDSDSWH='   \`?DCBOSI\e[0;37m     DRDS],   $(cat /etc/arch-release)\e[0;36m
+   SDDFDFH'        \`0YEWD,\e[0;37m    )HDROD   $(uname -o) $(uname -r -m)\e[0;36m
+  !KMDOCG            &GSU|\e[0;37m_GFHRGO'\e[0;36m
+  HKLSGP'           \e[0;37m__\e[0;36mTKM0\e[0;37mGHRBV)'\e[0;36m
+ JSNRVW'       \e[0;37m__+MNAEC\e[0;36mIOI,\e[0;37mBN'\e[0;36m
+ HELK['  \e[0;37m  __,=OFFXCBGHC\e[0;36mFD)
+JKGHEH\e[0;37m_-#DASDFSLSV='\e[0;36m    'EF
+!EHTI    \e[0;36m                !H
+ \`0F'                    '!\e[0m"
+}
+
+setprompt() { ## sets PS1
+	PS1="┌─\e[34m\]7h3rAm\e[0m\] at \[\e[33m\]\h\[\e[0m\] in \[\e[35m\]\w\[\e[0m\]\n└─╼ "
+}
+
+mountall() { ## mounts /dev/sd{a,b}* to /media/*
+	sudo mount /dev/sda3 /media/MEDIA && echo "[+] Mounted /dev/sda3 @ /media/MEDIA"
+	sudo mount /dev/sda4 /media/BASE && echo "[+] Mounted /dev/sda4 @ /media/BASE"
+
+	sudo mount /dev/sdb2 /media/PB146N && echo "[+] Mounted /dev/sdb2 @ /media/PB146N"
+	sudo mount /dev/sdb3 /media/PB250E && echo "[+] Mounted /dev/sdb3 @ /media/PB250E"
+	sudo mount /dev/sdb4 /media/PB100E && echo "[+] Mounted /dev/sdb4 @ /media/PB100E"
+}
+
+umountall() { ## unmounts /dev/sd{a,b}* from /media/*
+	sudo umount /media/MEDIA && echo "[+] Unmounted /media/MEDIA"
+	sudo umount /media/BASE && echo "[+] Unmounted /media/BASE"
+
+	sudo umount /media/PB146N && echo "[+] Unmounted /media/PB146N"
+	sudo umount /media/PB250E && echo "[+] Unmounted /media/PB250E"
+	sudo umount /media/PB100E && echo "[+] Unmounted /media/PB100E"
+}
+
+calc() { ## calculates the expression in $@
+	echo "$*" | bc -l
+}
+
+checkprogs() { ## checks if "$@" installed
+	local req_progs=$1
+	for p in ${req_progs[@]}; do
+		hash "$p" 2>&- || \
+		{ echo >&2 "Required program \"$p\" not installed."; return 1; }
+	done
+}
+
+xtract() { ## generic archive extract .{7z, tar.{gz,xz,bz2}, bz2, deb, gz, tar, tgz, rar, zip, Z}
+	[ -z "$@" ] && echo "USAGE: archive <file>" && return 1
+
+	[ ! -f "$@" ] && echo "File "$@" doesn't exist" && return 1
+
+	checkprogs "7z unrar unzip"
+
+	case "$@" in
+		*.7z ) 7z x "$@" ;;
+		*.tar.bz2 ) tar xvjf "$@" ;;
+		*.bz2 ) bunzip2 "$@" ;;
+		*.deb ) ar vx "$@" ;;
+		*.tar.gz ) tar xvf "$@" ;;
+		*.gz ) gunzip "$@" ;;
+		*.tar ) tar xvf "$@" ;;
+		*.tbz2 ) tar xvjf "$@" ;;
+		*.tar.xz ) tar xvf "$@" ;;
+		*.tgz ) tar xvzf "$@" ;;
+		*.rar ) unrar x "$@" ;;
+		*.rar ) 7z x "$@" ;;
+		*.zip ) unzip "$@" ;;
+		*.Z ) uncompress "$@" ;;
+		* ) echo "Unsupported file format" ;;
+	esac
+}
+
+depscan() { ## dependency scan for "$@"
+	[[ -z $1 ]] && { echo "usage: depscan <package>"; return 1; }
+	while read elfobj; do
+		objdump -p "$elfobj" | awk '/NEEDED/ { print $2 }'
+	done < <(file $(pacman -Qlq $1) | sed -n '/ELF/s/^\(.*\):.*/\1/p') | nl
+}
+
+mkcd() { ## mkdir + cd
+	mkdir $1 && cd $1
+}
+
+newwall() { ## change desktop wallpaper
+	feh --bg-scale `ls ${HOME}/pictures/wallpapers/* | shuf -n1`
+	#feh --bg-scale `ls ${HOME}/pictures/dwm/* | shuf -n1`
+}
+
+quit() { ## quit == exit
+	exit
+}
+
+lo() { ## ls with octal perms
+	ls -l | sed -e 's/--x/1/g' -e 's/-w-/2/g' -e 's/-wx/3/g' -e 's/r--/4/g' -e 's/r-x/5/g' -e 's/rw-/6/g' -e 's/rwx/7/g' -e 's/---/0/g'
+}
+
+dusk() { ## disk usage
+	du -sk ./* | sort -n | awk 'BEGIN{ pref[1]="K"; pref[2]="M"; pref[3]="G";} { total = total + $1; x = $1; y = 1; while( x > 1024 ) { x = (x + 1023)/1024; y++; } printf("%g%s\t%s\n",int(x*10)/10,pref[y],$2); } END { y = 1; while( total > 1024 ) { total = (total + 1023)/1024; y++; } printf("Total: %g%s\n",int(total*10)/10,pref[y]); }'
+}
+
+topcmds() { ## top used commands
+	history | awk 'BEGIN {FS="[ \t]+|\\|"} {print $3}' | sort | uniq -c | sort -nr ;
+}
+
+randpassp() { ## generates a random string with [:print:] of length $1
+	[ "$1" == "" ] && len=8 || len=$1
+	</dev/urandom tr -cd '[:graph:]' | head -c ${1:-$len} && echo ;
+}
+
+randpassc() { ## generates a random string with [a-zA-Z0-9 _!@#$%^&*()-+] of length $1
+	[ "$1" == "" ] && len=8 || len=$1
+	</dev/urandom tr -cd '[a-zA-Z0-9 _!@#$%^&*()-+]' | head -c$len && echo ;
+}
+
+showrandquote() { ## random quotes from fortune-wisdom
+	echo -en "\n"
+	fortune-wisdom | fmt -`echo $COLUMNS`
+	echo -en "\n"
+}
+
+mountiso() { ## mount .iso image to /media/iso
+	[ -z "$1" ] && echo "USAGE: mountiso <.isofile>" && return 1
+	[ ! -d /media/iso ] && sudo mkdir /media/iso
+	sudo mount -o loop -t iso9660 $1 /media/iso
+}
+
+dirsize() { ## human readable cwd size
+	du -shx * .[a-zA-Z0-9_]* 2> /dev/null | \
+	egrep '^ *[0-9.]*[MG]' | sort -n > /tmp/list
+	egrep '^ *[0-9.]*M' /tmp/list
+	egrep '^ *[0-9.]*G' /tmp/list
+	rm /tmp/list
+}
+
+manpdf() { ## create and show pdf of a man page
+	[ "$1" == "" ] && echo "What manual page do you want?" && return 1
+	man -t "$@" | ps2pdf - $HOME/manpdf_$1.pdf && xdg-open $HOME/manpdf_$1.pdf ;
+}
+
+currentdatetime() { ## store current date and time into $dte
+	dte="$(date +"%d/%b/%Y %H:%M")"
+}
+
+speakerstatus() { ## get speaker mute status into $mute
+	mute=`amixer get Master | grep "Mono:" | awk '{print $6}'`
+}
+
+speakervolume() { ## get speaker max volume level into $volmax
+	volmax=`amixer get Master | grep -m 1 -o '[0-9][0-9]'`
+}
+
+datedpackages() { ## get count of packages needing update into $pac
+	pac="$(pacman -Qu | wc -l)"
+}
+
+genericsysinfo() { ## $user $hostname $distro $kernel $cpu $uptime $shell $term $editor $browser $packages
+	user=$USER
+	hostname=$(hostname)
+	distro=$(lsb_release -d | tr -d '\t' | cut -d: -f2) ; arch=$(uname -m)
+	kernel=$(awk '{print $2}' <(pacman -Q linux))
+	cpu=$(cat /proc/cpuinfo | grep -i "model name" | head -1 | tr -d '\t' | tr -s ' ' | awk -F": " {'print $2'})
+	uptime=$(awk '{ sub(/,/,""); if (NF==10) print $3; else if (NF>10) print $3,$4}' <(uptime))
+	shell=$(echo $SHELL)
+	term=$(echo $TERM)
+	editor=$(echo $EDITOR)
+	browser=$(grep BROWSER $HOME/.bashrc) ; browser=$(echo ${browser##*/})
+	packages=$(pacman -Q | wc -l)
+}
+
+windowmanagerinfo() { ## $wm $res $font
+	wms=(dwm monsterwm echinus i3 wmfs awesome)
+
+	# if X is running
+	if [ "$DISPLAY" ]; then
+		# check for running wm
+		for w in "${wms[@]}"; do
+			PID="$(pgrep "$w")"
+			if [ "$PID" ]; then
+				case "$w" in
+					dwm) wm="dwm" ;;
+					echinus) wm="echinus" ;;
+					i3) wm="i3" ;;
+					wmfs) wm="WMFS" ;;
+				esac
+			fi
+		done
+		res=$(awk '/current/ {print $8,$9,+$10}' <(xrandr))
+		font=$(awk -F: '{print $3}' <(grep "^URxvt.font" $HOME/.Xdefaults))
+		shot="scrot -cd5"
+	else
+		res="Framebuffer"
+		wm="TTY"
+		font=$(awk -F\" '{print $2}' <(grep "^CONSOLEFONT" /etc/rc.conf))
+		shot="fbgrab -s5 fbgrab.png"
+	fi
+}
+
+cpubasicinfo() { ## $total $cpu
+	read cpu a b c previdle rest < /proc/stat
+	prevtotal=$((a+b+c+previdle))
+	sleep 0.5
+	read cpu a b c idle rest < /proc/stat
+	total=$((a+b+c+idle))
+	cpu="$((100*( (total-prevtotal) - (idle-previdle) ) / (total-prevtotal)))%"
+}
+
+memoryinfo() { ## $totalmem $usedmem $freemem $freememper $buffmem $cachemem $actusedmem $actusedmemper
+	totalmem=$(free -tm | grep "Mem:" | awk '{ print $2 }')
+
+	usedmem=$(free -tm | grep "Mem:" | awk '{ print $3 }')
+
+	freemem=$(free -tm | grep "Mem:" | awk '{ print $4 }')
+	[ "$freemem" != "0" ] && freemem=$(echo "($freemem+0.5)/1"|bc) && freememper=$(echo "($freemem*100/$totalmem)"|bc)
+	freememper=$(echo "($freememper+0.5)/1"|bc)
+
+	buffmem=$(free -tm | grep "Mem:" | awk '{ print $6 }')
+
+	cachmem=$(free -tm | grep "Mem:" | awk '{ print $7 }')
+
+	actusedmem=$(($usedmem-$buffmem-$cachmem))
+	[ "$actusedmem" != "0" ] && actusedmem=$(echo "($actusedmem+0.5)/1"|bc) && actusedmemper=$(echo "($actusedmem*100/$totalmem)"|bc)
+	actusedmemper=$(echo "($actusedmemper+0.5)/1"|bc)
+}
+
+swapinfo() { ##  $totalswap $usedswap $usedswapper $freeswap $freeswapper
+	totalswap=$(free -t -m | grep "Swap:" | awk '{ print $2 }')
+
+	usedswap=$(free -t -m | grep "Swap:" | awk '{ print $3 }')
+	[ "$usedswap" != "0" ] && usedswap=$(echo "($usedswap+0.5)/1"|bc) && usedswapper=$(echo "($usedswap*100/$totalswap)"|bc)
+	[ "$usedswapper" != "0" ] && usedswapper=$(echo "($usedswapper+0.5)/1"|bc)
+
+	freeswap=$(free -t -m | grep "Swap:" | awk '{ print $4 }')
+	[ "$freeswap" != "0" ] && freeswap=$(echo "($freeswap+0.5)/1"|bc) && freeswapper=$(echo "($freeswap*100/$totalswap)"|bc)
+	[ "$freeswapper" != "0" ] && freeswapper=$(echo "($freeswapper+0.5)/1"|bc)
+}
+
+diskinfo() { ## $totaldisk $useddisk $useddiskper $freedisk $freediskper
+	totaldisk=0 ; for t in `df -Tlh | egrep -vi "filesystem|rootfs|tmpfs" | tr -s " " | cut -d" " -f3 | sed 's/\w$//g'`; do
+		totaldisk=$(echo "$totaldisk+$t"|bc) ; totaldisk=$(echo "($totaldisk+0.5)/1" | bc)
+	done
+
+	useddisk=0 ; for u in `df -Tlh | egrep -vi "filesystem|rootfs|tmpfs" | tr -s " " | cut -d" " -f4 | sed 's/\w$//g'`; do
+		useddisk=$(echo "$useddisk+$u"|bc) ; useddisk=$(echo "($useddisk+0.5)/1"|bc)
+	done
+	[ "$useddisk" != "0" ] && useddisk=$(echo "($useddisk+0.5)/1"|bc) && useddiskper=$(echo "($useddisk*100/$totaldisk)"|bc)
+	useddiskper=$(echo "($useddiskper+0.5)/1"|bc)
+
+	freedisk=0 ; for a in `df -Tlh | egrep -vi "filesystem|rootfs|tmpfs" | tr -s " " | cut -d" " -f5 | sed 's/\w$//g'`; do
+		freedisk=$(echo "$freedisk+$a"|bc)
+	done
+	[ "$freedisk" != "0" ] && freedisk=$(echo "($freedisk+0.5)/1"|bc) && freediskper=$(echo "($freedisk*100/$totaldisk)"|bc)
+	freediskper=$(echo "($freediskper+0.5)/1"|bc)
+}
+
+acpiinfo() { ## $temp $tempthreshold0 $tempthreshold1 $tempthreshold2 $adapter $battery
+	temp=$(acpi -t | awk -F" " {'print $4'})
+	tempthrshold0=$(acpi -ti | grep "point 0" | awk -F" " {'print $12'})
+	tempthrshold1=$(acpi -ti | grep "point 1" | awk -F" " {'print $12'})
+	tempthrshold2=$(acpi -ti | grep "point 2" | awk -F" " {'print $12'})
+
+	adapter=$(acpi -a | awk -F" " {'print $3'})
+	battery=$(acpi -b | awk -F", " {'print $2'} |sed 's/%//g')
+}
+
+coretmp() { ## $ctmp
+	sensors | grep -A2 "ISA adapter" | grep "Core" | tr -s ' ' | cut -d"." -f1 | cut -d"+" -f2 >/tmp/coretmp
+	temp=0; count=0
+	for t in `cat /tmp/coretmp`; do
+		temp=$(($temp+$t))
+		count=$(($count+1))
+	done
+	ctmp=$(echo "$temp/$count"|bc)
+}
+
+netspeedinfo() { ## $lanintf $rxdif $txdif
+	lanintf=`ip a | grep -P "\d: " | egrep -iv "(down|loopback)" | awk -F": " {'print $2'}`
+
+	rxb=$(cat /sys/class/net/$lanintf/statistics/rx_bytes)
+	txb=$(cat /sys/class/net/$lanintf/statistics/tx_bytes)
+	sleep 2
+	rxbn=$(cat /sys/class/net/$lanintf/statistics/rx_bytes)
+	txbn=$(cat /sys/class/net/$lanintf/statistics/tx_bytes)
+
+	rxdif=$(echo "(($rxbn-$rxb)/1024)/2" | bc) && rxdif=$(echo "($rxdif+0.5)/1" | bc)
+	txdif=$(echo "(($txbn-$txb)/1024)/2" | bc) && txdif=$(echo "($txdif+0.5)/1" | bc)
+}
+
+showdircolors() { ## show current dircolor settings
+	eval $(dircolors /etc/DIR_COLORS.256color) && echo $LS_COLORS | tr : '\n' | sed 's/\(.*\)=\(.*\)/\x1b[\2m\1\t\2\x1b[0m/'
+}
+
+showtermcaps() { ## show terminal capabilities
+	infocmp -1 | sed -nu 's/^[ \000\t]*//;s/[ \000\t]*$//;/[^ \t\000]\{1,\}/!d;/acsc/d;s/=.*,//p'| column -c80
+}
+
+printscreen() { ## scrot at its best!
+	exec scrot "$@" '%Y.%m.%d-$wx$h.png'
+}
+
+pacback() { ## store currently installed packages to $HOME/.pkgslist
+	mv $HOME/.pkgslist /tmp/pkgslist.bck
+
+	allcount=`sudo pacman -Q | wc -l`
+	echo "[Packages - ALL - $allcount]" >$HOME/.pkgslist
+	sudo pacman -Q >>$HOME/.pkgslist
+
+	echo -en "\n\n" >>/$HOME/.pkgslist
+
+	mancount=`sudo pacman -Qm | wc -l`
+	echo "[Packages - MANUAL - $mancount]" >>$HOME/.pkgslist
+	sudo pacman -Qm >>$HOME/.pkgslist
+}
+
+listfunctions() {
+	cat $HOME/.functions | grep -P "\w+\(\).*##" | sed 's/{ //g' | nl
+}
+
+listaliases() {
+  cat $HOME/.aliases | grep 'alias' | sed 's/alias//g' | cut -d" " -f2- | nl
+}
+
+

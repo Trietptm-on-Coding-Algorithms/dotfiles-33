@@ -1,0 +1,9 @@
+#!/bin/sh
+
+while true; do 
+	$HOME/scripts/dwmstatus
+	#sleep 1s
+done &
+
+exec dwm 2> $HOME/.dwm.log
+

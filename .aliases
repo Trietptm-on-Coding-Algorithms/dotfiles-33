@@ -1,0 +1,185 @@
+## cd'ing
+alias ~='cd ~'
+alias ..='cd ..'
+alias ...='cd ../../../'
+alias ....='cd ../../../../'
+alias .....='cd ../../../../'
+alias .4='cd ../../../../'
+alias .5='cd ../../../../..'
+
+
+## listing
+alias l='ls -l'
+alias ll='ls -l'
+alias ls='ls --color=auto'	# add colors for filetype recognition
+alias la='ls -la'		# show hidden files
+alias lx='ls -lXB'		# sort by extension
+alias lk='ls -lSr'		# sort by size, biggest last
+alias lc='ls -ltcr'		# sort by and show change time, most recent last
+alias lu='ls -ltur'		# sort by and show access time, most recent last
+alias lt='ls -ltr'		# sort by date, most recent last
+alias lm='ls -al | more'	# pipe through 'more'
+alias lr='ls -lR'		# recursive ls
+alias lsr='tree -Csu'		# nice alternative to 'recursive ls'
+
+
+## fortune
+alias fortune-art='fortune /usr/share/fortune/art'
+alias fortune-ascii-art='fortune /usr/share/fortune/ascii-art'
+alias fortune-computers='fortune /usr/share/fortune/computers'
+alias fortune-cookie='fortune /usr/share/fortune/cookie'
+alias fortune-debian='fortune /usr/share/fortune/debian'
+alias fortune-definitions='fortune /usr/share/fortune/definitions'
+alias fortune-drugs='fortune /usr/share/fortune/drugs'
+alias fortune-education='fortune /usr/share/fortune/education'
+alias fortune-ethnic='fortune /usr/share/fortune/ethnic'
+alias fortune-food='fortune /usr/share/fortune/food'
+alias fortune-fortunes='fortune /usr/share/fortune/fortunes'
+alias fortune-goedel='fortune /usr/share/fortune/goedel'
+alias fortune-humorists='fortune /usr/share/fortune/humorists'
+alias fortune-kids='fortune /usr/share/fortune/kids'
+alias fortune-knghtbrd='fortune /usr/share/fortune/knghtbrd'
+alias fortune-law='fortune /usr/share/fortune/law'
+alias fortune-linuxcookie='fortune /usr/share/fortune/linuxcookie'
+alias fortune-linux='fortune /usr/share/fortune/linux'
+alias fortune-literature='fortune /usr/share/fortune/literature'
+alias fortune-love='fortune /usr/share/fortune/love'
+alias fortune-magic='fortune /usr/share/fortune/magic'
+alias fortune-medicine='fortune /usr/share/fortune/medicine'
+alias fortune-men-women='fortune /usr/share/fortune/men-women'
+alias fortune-miscellaneous='fortune /usr/share/fortune/miscellaneous'
+alias fortune-news='fortune /usr/share/fortune/news'
+alias fortune-off='fortune /usr/share/fortune/off'
+alias fortune-paradoxum='fortune /usr/share/fortune/paradoxum'
+alias fortune-people='fortune /usr/share/fortune/people'
+alias fortune-perl='fortune /usr/share/fortune/perl'
+alias fortune-pets='fortune /usr/share/fortune/pets'
+alias fortune-platitudes='fortune /usr/share/fortune/platitudes'
+alias fortune-politics='fortune /usr/share/fortune/politics'
+alias fortune-riddles='fortune /usr/share/fortune/riddles'
+alias fortune-science='fortune /usr/share/fortune/science'
+alias fortune-songs-poems='fortune /usr/share/fortune/songs-poems'
+alias fortune-sports='fortune /usr/share/fortune/sports'
+alias fortune-startrek='fortune /usr/share/fortune/startrek'
+alias fortune-translate-me='fortune /usr/share/fortune/translate-me'
+alias fortune-wisdom='fortune /usr/share/fortune/wisdom'
+alias fortune-work='fortune /usr/share/fortune/work'
+alias fortune-zippy='fortune /usr/share/fortune/zippy'
+
+
+## precautionary measures
+alias cp='cp -i'
+alias mv='mv -i'
+alias ln='ln -i'
+alias rm='rm -I'
+alias rm='rm --preserve-root'
+alias chgrp='chgrp --preserve-root'
+alias chmod='chmod --preserve-root'
+alias chown='chown --preserve-root'
+
+
+## pacman
+alias pacman='sudo pacman-color'
+alias pacrs='pacman -Rs'
+alias pacsc='pacman -Sc'
+alias pacs='pacman -S'
+alias pacss='pacman -Ss'
+alias pacsyu='pacman -Syu'
+alias pacsyy='pacman -Syy'
+alias pacsearch='pacman -Sl | cut -d" " -f2 | grep'
+alias clean='sudo pacman -Sc'
+alias rmorphans='pacman -Qtdq > orphans.txt && less orphans.txt'
+
+
+## network
+alias wget='wget -c'
+
+alias tports='netstat -tlanp'
+alias uports='netstat -ulanp'
+
+alias ping='ping -c3'
+alias p8='ping -c3 8.8.8.8'
+alias pg='ping -c3 www.google.com'
+
+alias im='centerim'
+alias music='ncmpcpp'
+alias rss='newsbeuter'
+
+
+## spark|lolcat stuff
+alias gslca='git shortlog -s | cut -f1 | spark | lolcat'
+alias gslcw='for day in $(seq 14 -1 0);do git log --before="${day} days" --after="$[${day}+1] days" --format=oneline | wc -l ;done | spark | lolcat'
+alias gslcd='for hour in $(seq 8 -1 0); do git log --before="${hour} hours" --after="$[${hour}+1] hours" --format=oneline | wc -l;done | spark | lolcat'
+alias sglpsrt='ps -e | tail -n +2 | cut -c 16-23 | sed -e "s/$/))))/" -e "s/:/ + (60 * (/" -e "s/:/ + (60 *(/" | bc | spark | lolcat'
+alias sglflsz='du * | cut -dM -f1 | spark | lolcat'
+alias sglldav='echo "$(cat /proc/loadavg | cut -d" " -f1-3) $(egrep -c "^processor" /proc/cpuinfo)00 0" | sed "s/\(0\.\|0\.0\|\.\)//g" | spark | lolcat'
+
+
+## system
+alias j='jobs -l'
+alias meminfo='free -m -l -t'
+alias cpuinfo='cat /proc/cpuinfo'
+alias pscpu='ps auxf | sort -nr -k 3'
+alias psmem='ps auxf | sort -nr -k 4'
+alias shutdown='sudo shutdown -h now'
+alias reboot='sudo shutdown -r now'
+
+alias reboot='sudo shutdown -r now'
+alias shut='sudo shutdown -h now'
+
+alias df='df -H'
+alias du='du -ch'
+
+
+## miscellaneous
+alias c='clear'
+
+alias grep='grep --color'
+alias grep='grep --color=auto'
+alias egrep='egrep --color=auto'
+alias fgrep='fgrep --color=auto'
+
+alias h='history'
+alias home='cd ~'
+
+alias bc='bc -l'
+
+alias mkdir='mkdir -pv'
+alias mountcd='sudo mount -t is09660 /dev/sr0 /media/cdrom'
+alias mv='mv -i'
+
+alias n='nano -S'
+alias sn='sudo nano -S'
+alias nano='nano -S' # += imvw
+alias sv='sudo vim'
+alias vi='vim'
+alias v='vim'
+
+alias nowdate="date +'%d-%m-%Y'"
+alias now="date +'%T'"
+alias nowtime=now
+
+alias diff='colordiff'
+alias path='echo -e ${PATH//:/\\n}'
+alias whr='type -a'
+alias xinitrc='vim /home/theram/.xinitrc'
+alias x='startx'
+alias srcbashrc='source /home/theram/.bashrc'
+alias big='find . -type f -exec ls -s {} \; | sort -nr'
+alias grep='grep --color=always'
+alias sizeof='du -sh'
+alias updatedb='sudo updatedb'
+
+alias tmux='tmux -f $HOME/.tmux/conf'
+alias share='python -m SimpleHTTPServer'
+
+alias config='(cd /home/jason/Build/dwm && vim config.h)'
+alias compile='(cd /home/jason/Build/dwm && vim config.h && makepkg -efi)'
+
+alias ttyclock='tty-clock -cC 6'
+
+alias plusx='chmod +x'
+alias minusx='chmod -x'
+
+alias curltime="curl -o /dev/null -s -w 'Return Code = %{http_code}\nBytes recieved = %{size_download}\nDNS = %{time_namelookup}\nConnect = %{time_connect} \nPretransfer = %{time_pretransfer}\nStart transfer = %{time_starttransfer}\nTotal = %{time_total}\n'"
+
