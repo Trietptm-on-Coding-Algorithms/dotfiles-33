@@ -79,7 +79,7 @@ alias chown='chown --preserve-root'
 
 
 ## pacman
-alias pacman='sudo pacman-color'
+alias pacman='sudo pacman'
 alias pacrs='pacman -Rs'
 alias pacsc='pacman -Sc'
 alias pacs='pacman -S'
@@ -88,10 +88,13 @@ alias pacsyu='pacman -Syu'
 alias pacsyy='pacman -Syy'
 alias pacsearch='pacman -Sl | cut -d" " -f2 | grep'
 alias clean='sudo pacman -Sc'
-alias rmorphans='pacman -Qtdq > orphans.txt && less orphans.txt'
-
+alias rmorphans='pacman -Qtdq >/tmp/orphans && less /tmp/orphans'
 
 ## network
+alias netenable='sudo systemctl enable dhcpcd@enp2s0.service'
+alias netstatus='sudo systemctl status dhcpcd@enp2s0.service'
+alias netstart='sudo systemctl start dhcpcd@enp2s0.service'
+
 alias wget='wget -c'
 
 alias tports='netstat -tlanp'
@@ -111,7 +114,6 @@ alias gslca='git shortlog -s | cut -f1 | spark | lolcat'
 alias gslcw='for day in $(seq 14 -1 0);do git log --before="${day} days" --after="$[${day}+1] days" --format=oneline | wc -l ;done | spark | lolcat'
 alias gslcd='for hour in $(seq 8 -1 0); do git log --before="${hour} hours" --after="$[${hour}+1] hours" --format=oneline | wc -l;done | spark | lolcat'
 alias sglpsrt='ps -e | tail -n +2 | cut -c 16-23 | sed -e "s/$/))))/" -e "s/:/ + (60 * (/" -e "s/:/ + (60 *(/" | bc | spark | lolcat'
-alias sglflsz='du * | cut -dM -f1 | spark | lolcat'
 alias sglldav='echo "$(cat /proc/loadavg | cut -d" " -f1-3) $(egrep -c "^processor" /proc/cpuinfo)00 0" | sed "s/\(0\.\|0\.0\|\.\)//g" | spark | lolcat'
 
 
@@ -162,9 +164,9 @@ alias nowtime=now
 alias diff='colordiff'
 alias path='echo -e ${PATH//:/\\n}'
 alias whr='type -a'
-alias xinitrc='vim /home/theram/.xinitrc'
+alias xinitrc='vim $HOME/.xinitrc'
 alias x='startx'
-alias srcbashrc='source /home/theram/.bashrc'
+alias srcbashrc='source $HOME/.bashrc'
 alias big='find . -type f -exec ls -s {} \; | sort -nr'
 alias grep='grep --color=always'
 alias sizeof='du -sh'
@@ -172,9 +174,6 @@ alias updatedb='sudo updatedb'
 
 alias tmux='tmux -f $HOME/.tmux/conf'
 alias share='python -m SimpleHTTPServer'
-
-alias config='(cd /home/jason/Build/dwm && vim config.h)'
-alias compile='(cd /home/jason/Build/dwm && vim config.h && makepkg -efi)'
 
 alias ttyclock='tty-clock -cC 6'
 

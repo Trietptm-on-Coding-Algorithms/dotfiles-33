@@ -34,7 +34,7 @@ shopt -s nocaseglob         # pathname expansion will be treated as case-insensi
 HISTCONTROL=ignoreboth:erasedups
 HISTSIZE=10000
 unset HISTFILESIZE
-PROMPT_COMMAND='history -a'
+PROMPT_COMMAND='history -a; history -n'
 
 export EDITOR="vim"
 export FCEDIT="vim"
@@ -42,9 +42,10 @@ export FCEDIT="vim"
 BROWSER=/usr/bin/firefox
 
 PATH=$PATH:$HOME/.gem/ruby/1.9.1/bin
+PATH=$PATH:$HOME/.gem/ruby/2.0.0/bin
 PATH=$PATH:$HOME/scripts
 
-eval $(dircolors -b ~/.dircolors)
+eval $(dircolors -b $HOME/.dircolors)
 export GREP_COLOR="1;33"
 
 [ -n "$TMUX" ] && export TERM=screen-256color
@@ -58,9 +59,6 @@ export LESS_TERMCAP_se=$'\E[0m'
 export LESS_TERMCAP_so=$'\E[01;44;33m'
 export LESS_TERMCAP_ue=$'\E[0m'
 export LESS_TERMCAP_us=$'\E[01;32m'
-
-# colourize terminal output with cope
-#PATH=/usr/share/perl5/vendor_perl/auto/share/dist/Cope:$PATH
 
 gitpromptfile="$HOME/scripts/gitprompt"
 [ -f $gitpromptfile ] && source $gitpromptfile || echo "$gitpromptfile not found!"
@@ -80,4 +78,5 @@ funcsfile="$HOME/.functions"
 termcolorsfile="$HOME/.termcolors"
 [ -f $termcolorsfile ] && source $termcolorsfile || echo "$termcolorsfile not found!"
 
+export TMUX_POWERLINE_SEG_WEATHER_LOCATION="2295420"
 

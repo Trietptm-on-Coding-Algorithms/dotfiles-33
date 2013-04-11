@@ -1,0 +1,4 @@
+#!/bin/bash
+
+exec vimprobable2 -e $(</tmp/tabbed.xid) "$1"
+

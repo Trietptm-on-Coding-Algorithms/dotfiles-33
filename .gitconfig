@@ -3,6 +3,7 @@
 	email = 7h3rAm@gmail.com
 
 [core]
+	pager = less -r
 	filemode = true
 	logallrefupdates = true
 	whitespace = space-before-tab, trailing-space
@@ -27,7 +28,12 @@
 	smtpuser = 7h3rAm@gmail.com
 
 [color]
-	ui = auto
+	ui = true   
+	diff = auto
+	status = auto
+	branch = auto
+	interactive = auto
+	pager = true
 
 [color "diff"]
 	meta = blue bold
@@ -43,8 +49,8 @@
 
 [color "status"]
 	added = yellow
-	changed = green bold
-	untracked = blue bold
+	changed = yellow bold
+	untracked = magenta bold
 
 [browser "gitscm"]
 	cmd = sh -c 'open http://git-scm.com/docs/$(basename $1 .html)' --

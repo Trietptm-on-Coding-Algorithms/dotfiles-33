@@ -1,0 +1,17 @@
+#!/bin/bash
+
+list=(mpd xautolock)
+
+for app in "${list[@]}"; do
+	check=$(ps -C "$app" -opid=)
+	if [[ -z "$check" ]]; then
+		case "$app" in
+			mpd) mpd $HOME/.mpd/mpd.conf 
+			;;
+			xautolock) xautolock -time 8 -locker "slock" \
+					-nowlocker "slock" &
+			;;
+		esac
+	fi
+done
+

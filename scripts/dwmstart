@@ -1,9 +1,11 @@
 #!/bin/sh
 
-while true; do 
-	$HOME/scripts/dwmstatus
-	#sleep 1s
+while true; do
+  ~/scripts/dwmstatus
+  #sleep 1s
 done &
 
-exec dwm 2> $HOME/.dwm.log
+while true; do
+  exec dwm 2> ~/.dwm.log
+done
 

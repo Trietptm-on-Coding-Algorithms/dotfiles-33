@@ -1,0 +1,8 @@
+# session initialization
+#new -s IRC -n Tyrs tyrs
+neww -n irssi /home/theram/scripts/startirssi
+neww -n RSS newsbeuter
+neww bash
+selectw -t 1
+
+

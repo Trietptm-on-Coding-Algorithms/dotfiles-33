@@ -1,0 +1,78 @@
+#!/usr/bin/perl
+ 
+#
+#  Copyright 2007 - David Pascoe-Deslauriers
+#  codemonkey(%)csiuo.com
+#
+ 
+use Curses;
+ 
+initscr();
+start_color();
+ 
+init_pair(1, COLOR_GREEN, COLOR_BLACK);
+ 
+attron(COLOR_PAIR(1));
+ 
+$live = true;
+ 
+$height = $LINES;
+$width = $COLS;
+ 
+@game = ();
+@gametmp = ();
+ 
+for($y = 0; $y < $height; $y++){
+	for ($x = 0; $x < $width; $x++){
+		$game[$x][$y] = 0;
+		$gametmp[$x][$y] = 0;
+		if (rand() > 0.75){
+			$game[$x][$y] = 1;
+		}
+	}
+}
+ 
+while ($live){
+	for($y = 0; $y < $height; $y++){
+		for ($x = 0; $x < $width; $x++){
+ 
+			$gametmp[$x][$y] = 0;
+ 
+			if ($game[$x][$y] == 1) {
+				addch($y,$x,'S');
+			} else {
+				addch($y,$x,' ');
+			}
+ 
+			$count = 0;	
+ 
+			for($b = 0; $b < 3; $b++){
+				for ($a = 0; $a < 3; $a++){
+					if ($a == 1 and $b == 1 ){
+						next;
+					} elsif ($game[($a + $x - 1) % $width][($b + $y -1) % $height]==1) {
+						$count++;
+					}
+				}
+			}
+ 
+ 
+			if (($count == 2 or $count == 3) and $game[$x][$y] == 1){
+				$gametmp[$x][$y] = 1;
+			} elsif ($count == 3){
+				$gametmp[$x][$y] = 1;
+			} else {
+				$gametmp[$x][$y] = 0;
+			}
+		}
+	}
+	refresh();
+	@tmp = @game;
+	@game = @gametmp;
+	@gametmp = @tmp;
+}
+ 
+ 
+attroff(COLOR_PAIR(1));
+getch();
+endwin();

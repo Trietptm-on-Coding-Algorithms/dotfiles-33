@@ -1,17 +1,3 @@
-lfreq() { ## show letter frequencies for $1
-  [ $# -ne 1 ] && echo "USAGE: lfreq <file>" && return 1
-  cat $1 | awk -vFS="" '{for(i=1;i<=NF;i++){if($i~/[a-zA-Z]/){w[tolower($i)]++}}}END{for(i in w) print i,w[i]}' | sort | cut -c 3- | spark | lolcat
-}
-
-sgmemusage() { ## show memory usage graph
-  for mem in $(egrep '(MemFree|Buffers|Cached|Slab|PageTables|SwapCached)' /proc/meminfo | egrep -o '[0-9]+'); do not_apps=$((not_apps+mem)); done ; spark $((total-not_apps)) $total 0
-}
-
-sgping() { ## show a ping response time graph
-  [ $# -ne 1 ] && echo "USAGE: sgping <host>" && return 1
-  ping -c 10 $1 | tee >(grep -oP 'time=\K\S*' | spark | lolcat)
-}
-
 archlinux() { ## displays a sweet ArchLinux banner
 echo -e "\e[0;36m              _                                   _     _ _                 
           _=(SDGJT=_                             | |   | (_)                 
@@ -29,28 +15,6 @@ echo -e "\e[0;36m              _                                   _     _ _
 JKGHEH\e[0;37m_-#DASDFSLSV='\e[0;36m    'EF
 !EHTI    \e[0;36m                !H
  \`0F'                    '!\e[0m"
-}
-
-setprompt() { ## sets PS1
-	PS1="┌─\e[34m\]7h3rAm\e[0m\] at \[\e[33m\]\h\[\e[0m\] in \[\e[35m\]\w\[\e[0m\]\n└─╼ "
-}
-
-mountall() { ## mounts /dev/sd{a,b}* to /media/*
-	sudo mount /dev/sda3 /media/MEDIA && echo "[+] Mounted /dev/sda3 @ /media/MEDIA"
-	sudo mount /dev/sda4 /media/BASE && echo "[+] Mounted /dev/sda4 @ /media/BASE"
-
-	sudo mount /dev/sdb2 /media/PB146N && echo "[+] Mounted /dev/sdb2 @ /media/PB146N"
-	sudo mount /dev/sdb3 /media/PB250E && echo "[+] Mounted /dev/sdb3 @ /media/PB250E"
-	sudo mount /dev/sdb4 /media/PB100E && echo "[+] Mounted /dev/sdb4 @ /media/PB100E"
-}
-
-umountall() { ## unmounts /dev/sd{a,b}* from /media/*
-	sudo umount /media/MEDIA && echo "[+] Unmounted /media/MEDIA"
-	sudo umount /media/BASE && echo "[+] Unmounted /media/BASE"
-
-	sudo umount /media/PB146N && echo "[+] Unmounted /media/PB146N"
-	sudo umount /media/PB250E && echo "[+] Unmounted /media/PB250E"
-	sudo umount /media/PB100E && echo "[+] Unmounted /media/PB100E"
 }
 
 calc() { ## calculates the expression in $@
@@ -91,19 +55,18 @@ xtract() { ## generic archive extract .{7z, tar.{gz,xz,bz2}, bz2, deb, gz, tar, 
 	esac
 }
 
-depscan() { ## dependency scan for "$@"
-	[[ -z $1 ]] && { echo "usage: depscan <package>"; return 1; }
-	while read elfobj; do
-		objdump -p "$elfobj" | awk '/NEEDED/ { print $2 }'
-	done < <(file $(pacman -Qlq $1) | sed -n '/ELF/s/^\(.*\):.*/\1/p') | nl
+depscan() { ## dependency scan for $1
+	[ -z "$1" ] && echo "USAGE: depscan <package>" && return 1
+	objdump -p `file $(pacman -Qlq $1) | sed -n /ELF/s/^(.*):.*/1/p` | grep -i needed | awk {print } | nl
 }
 
-mkcd() { ## mkdir + cd
+mkcd() { ## mkdir + cd for $1
+	[ -z "$1" ] && echo "USAGE: mkcd <dirname>" && return 1
 	mkdir $1 && cd $1
 }
 
 newwall() { ## change desktop wallpaper
-	feh --bg-scale `ls ${HOME}/pictures/wallpapers/* | shuf -n1`
+	feh --bg-scale `ls ${HOME}/pictures/3/* | shuf -n1`
 	#feh --bg-scale `ls ${HOME}/pictures/dwm/* | shuf -n1`
 }
 
@@ -124,12 +87,12 @@ topcmds() { ## top used commands
 }
 
 randpassp() { ## generates a random string with [:print:] of length $1
-	[ "$1" == "" ] && len=8 || len=$1
+	[ -z "$1" ] && len=8 || len=$1
 	</dev/urandom tr -cd '[:graph:]' | head -c ${1:-$len} && echo ;
 }
 
 randpassc() { ## generates a random string with [a-zA-Z0-9 _!@#$%^&*()-+] of length $1
-	[ "$1" == "" ] && len=8 || len=$1
+	[ -z "$1" ] && len=8 || len=$1
 	</dev/urandom tr -cd '[a-zA-Z0-9 _!@#$%^&*()-+]' | head -c$len && echo ;
 }
 
@@ -154,7 +117,7 @@ dirsize() { ## human readable cwd size
 }
 
 manpdf() { ## create and show pdf of a man page
-	[ "$1" == "" ] && echo "What manual page do you want?" && return 1
+	[ -z "$1" ] && echo "What manual page do you want?" && return 1
 	man -t "$@" | ps2pdf - $HOME/manpdf_$1.pdf && xdg-open $HOME/manpdf_$1.pdf ;
 }
 
@@ -174,13 +137,22 @@ datedpackages() { ## get count of packages needing update into $pac
 	pac="$(pacman -Qu | wc -l)"
 }
 
+uptimeinfo() {
+uptt=`uptime | awk -F"[, ]" '{
+  if (NF==17)
+    print $4
+  else
+    print $5
+  }'`
+}
+
 genericsysinfo() { ## $user $hostname $distro $kernel $cpu $uptime $shell $term $editor $browser $packages
 	user=$USER
 	hostname=$(hostname)
 	distro=$(lsb_release -d | tr -d '\t' | cut -d: -f2) ; arch=$(uname -m)
-	kernel=$(awk '{print $2}' <(pacman -Q linux))
+	kernel=$(pacman -Q linux | awk '{print $2}')
 	cpu=$(cat /proc/cpuinfo | grep -i "model name" | head -1 | tr -d '\t' | tr -s ' ' | awk -F": " {'print $2'})
-	uptime=$(awk '{ sub(/,/,""); if (NF==10) print $3; else if (NF>10) print $3,$4}' <(uptime))
+	uptime=$(uptime | awk '{ sub(/,/,""); if (NF==10) print $3; else if (NF>10) print $3,$4}')
 	shell=$(echo $SHELL)
 	term=$(echo $TERM)
 	editor=$(echo $EDITOR)
@@ -205,13 +177,12 @@ windowmanagerinfo() { ## $wm $res $font
 				esac
 			fi
 		done
-		res=$(awk '/current/ {print $8,$9,+$10}' <(xrandr))
-		font=$(awk -F: '{print $3}' <(grep "^URxvt.font" $HOME/.Xdefaults))
+		res=`xrandr | awk '/current/ {print $8,$9,+$10}'`
+		font=`grep -i "^URxvt.font" $HOME/.Xdefaults | awk -F: '{print $3}'`
 		shot="scrot -cd5"
 	else
 		res="Framebuffer"
 		wm="TTY"
-		font=$(awk -F\" '{print $2}' <(grep "^CONSOLEFONT" /etc/rc.conf))
 		shot="fbgrab -s5 fbgrab.png"
 	fi
 }
@@ -222,7 +193,7 @@ cpubasicinfo() { ## $total $cpu
 	sleep 0.5
 	read cpu a b c idle rest < /proc/stat
 	total=$((a+b+c+idle))
-	cpu="$((100*( (total-prevtotal) - (idle-previdle) ) / (total-prevtotal)))%"
+	cpu="$((100*( (total-prevtotal) - (idle-previdle) ) / (total-prevtotal)))"
 }
 
 memoryinfo() { ## $totalmem $usedmem $freemem $freememper $buffmem $cachemem $actusedmem $actusedmemper
@@ -306,6 +277,25 @@ netspeedinfo() { ## $lanintf $rxdif $txdif
 	txdif=$(echo "(($txbn-$txb)/1024)/2" | bc) && txdif=$(echo "($txdif+0.5)/1" | bc)
 }
 
+geoloc() { ## fetch geoloc info
+	geolocurl="http://www.maxmind.com//geoip/city_isp_org/me?demo=1"
+	geolocfile="/tmp/geolocfile"
+
+	curl -sL $geolocurl >$geolocfile
+
+	city=`cat $geolocfile | grep -oP \"name\":{\"[^,]+ | awk -F"\"" '{print $(NF-1)}' | tr '\n' ',' | cut -d"," -f2`
+	state=`cat $geolocfile | grep -oP \"name\":{\"[^,]+ | awk -F"\"" '{print $(NF-1)}' | tr '\n' ',' | cut -d"," -f4`
+	country=`cat $geolocfile | grep -oP \"name\":{\"[^,]+ | awk -F"\"" '{print $(NF-1)}' | tr '\n' ',' | cut -d"," -f1`
+	continent=`cat $geolocfile | grep -oP \"name\":{\"[^,]+ | awk -F"\"" '{print $(NF-1)}' | tr '\n' ',' | cut -d"," -f3`
+
+	latitude=`cat $geolocfile | grep -oP "\"latitude\":\d+\.\d+" | cut -d":" -f2`
+	longitude=`cat $geolocfile | grep -oP "\"longitude\":\d+\.\d+" | cut -d":" -f2`
+
+	organization=`cat $geolocfile | grep -oP \"organization\":\"[^,]+ | awk -F"\"" '{print $(NF-1)}'`
+
+	isp=`cat $geolocfile | grep -oP \"isp\":\"[^,]+ | awk -F"\"" '{print $(NF-1)}'`
+}
+
 showdircolors() { ## show current dircolor settings
 	eval $(dircolors /etc/DIR_COLORS.256color) && echo $LS_COLORS | tr : '\n' | sed 's/\(.*\)=\(.*\)/\x1b[\2m\1\t\2\x1b[0m/'
 }
@@ -319,7 +309,7 @@ printscreen() { ## scrot at its best!
 }
 
 pacback() { ## store currently installed packages to $HOME/.pkgslist
-	mv $HOME/.pkgslist /tmp/pkgslist.bck
+	mv -f $HOME/.pkgslist /tmp/pkgslist.bck
 
 	allcount=`sudo pacman -Q | wc -l`
 	echo "[Packages - ALL - $allcount]" >$HOME/.pkgslist
@@ -339,5 +329,4 @@ listfunctions() {
 listaliases() {
   cat $HOME/.aliases | grep 'alias' | sed 's/alias//g' | cut -d" " -f2- | nl
 }
-
 

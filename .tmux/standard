@@ -1,0 +1,9 @@
+# session initialization
+#new -s Standard -n Tyrs tyrs
+neww -n RSS newsbeuter
+neww -n vifm/ncmpcpp vifm
+splitw -h -p 50 -t 0 music
+neww bash
+selectw -t 1
+
+

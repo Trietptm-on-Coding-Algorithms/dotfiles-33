@@ -4,57 +4,78 @@
 
 source $HOME/.functions
 
+upt() {
+  uptimeinfo
+  echo -en "\x06UPT $uptt\x01 |"
+}
+
 dsk() {
 	diskinfo
-	echo -en "${useddisk}G $useddiskper%"
+	if [[ $useddiskper -le 29 ]]; then echo -en "\x02DSK \x09$${useddisk}G ${useddiskper}%\x01 |" ;fi
+	if [[ $useddiskper -ge 30 && $useddiskper -le 49 ]]; then echo -en "\x02DSK \x06${useddisk}G ${useddiskper}%\x01 |" ;fi
+	if [[ $useddiskper -ge 50 && $useddiskper -le 74 ]]; then echo -en "\x02DSK \x05${useddisk}G ${useddiskper}%\x01 |" ;fi
+	if [[ $useddiskper -ge 75 ]]; then echo -en "\x02DSK \x03${useddisk}G ${useddiskper}%\x01 |" ;fi
 }
 
 mem() {
 	memoryinfo
-	echo -en "${actusedmem}M $actusedmemper%"
-
+	if [[ $actusedmemper -le 29 ]]; then echo -en "\x02MEM \x09${actusedmem}M ${actusedmemper}%\x01 |" ;fi
+	if [[ $actusedmemper -ge 30 && $actusedmemper -le 49 ]]; then echo -en "\x02MEM \x06${actusedmem}M ${actusedmemper}%\x01 |" ;fi
+	if [[ $actusedmemper -ge 50 && $actusedmemper -le 74 ]]; then echo -en "\x02MEM \x05${actusedmem}M ${actusedmemper}%\x01 |" ;fi
+	if [[ $actusedmemper -ge 75 ]]; then echo -en "\x02MEM \x03${actusedmem}M ${actusedmemper}%\x01 |" ;fi
 }
 
 cpu() {
 	cpubasicinfo
-	echo -en "$cpu"
+	if [[ $cpu -le 29 ]]; then echo -en "\x02CPU \x09${cpu}%\x01 |" ;fi
+	if [[ $cpu -ge 30 && $cpu -le 49 ]]; then echo -en "\x02CPU \x06${cpu}%\x01 |" ;fi
+	if [[ $cpu -ge 50 && $cpu -le 74 ]]; then echo -en "\x02CPU \x05${cpu}%\x01 |" ;fi
+	if [[ $cpu -ge 75 ]]; then echo -en "\x02CPU \x03${cpu}%\x01 |" ;fi
 }
 
 tmp() {
 	coretmp
-	echo -en "${ctmp}C"
+	if [[ $ctmp -le 29 ]]; then echo -en "\x02TMP \x09${ctmp}C\x01 |" ;fi
+	if [[ $ctmp -ge 30 && $ctmp -le 49 ]]; then echo -en "\x02TMP \x06${ctmp}C\x01 |" ;fi
+	if [[ $ctmp -ge 50 && $ctmp -le 74 ]]; then echo -en "\x02TMP \x05${ctmp}C\x01 |" ;fi
+	if [[ $ctmp -ge 75 ]]; then echo -en "\x02TMP \x03${ctmp}C\x01 |" ;fi
 }
 
 net() {
 	netspeedinfo
-	echo -en "${rxdif}K/s ${txdif}K/s"
+	echo -en "\x02NET \x06${rxdif}K/s ${txdif}K/s\x01 |"
 }
 
 pac() {
 	datedpackages
-	[ $pac == 0 ] && echo "0" || echo -en "$pac"
+	if [[ $pac -ge 0 && $pac -le 29 ]]; then echo -en "\x02PAC \x09${pac}\x01 |" ;fi
+	if [[ $pac -ge 30 && $pac -le 49 ]]; then echo -en "\x02PAC \x06${pac}\x01 |" ;fi
+	if [[ $pac -ge 50 && $pac -le 74 ]]; then echo -en "\x02PAC \x05${pac}\x01 |" ;fi
+	if [[ $pac -ge 75 ]]; then echo -en "\x02PAC \x03${pac}\x01 |" ;fi
 }
 
 bat() {
 	acpiinfo
-	[ "$adapter" == "off-line" ] && echo -en "$battery% DC" || echo -en "$battery% AC"
+	if [[ $battery -le 10 ]]; then echo -en "\x02BAT \x03$battery%\x01" ;fi
+	if [[ $battery -ge 11 && $battery -le 49 ]]; then echo -en "\x02BAT \x05$battery%"; [ "$adapter" == "off-line" ] && echo -en " \x05DC\x01 |" || echo -en " \x05AC\x01 |" ;fi
+	if [[ $battery -ge 50 && $battery -le 74 ]]; then echo -en "\x02BAT \x06$battery%\x01"; [ "$adapter" == "off-line" ] && echo -en " \x06DC\x01 |" || echo -en " \x06AC\x01 |" ;fi
+	if [[ $battery -ge 75 ]]; then echo -en "\x02BAT \x09$battery%\x01"; [ "$adapter" == "off-line" ] && echo -en " \x09DC\x01 |" || echo -en " \x09AC\x01 |" ;fi
 }
 
 vol(){
 	speakerstatus
 	if [ $mute == "[on]" ]; then
 		speakervolume
-		echo -e "$vol%"
+		echo -e "$vol% |"
 	else
-		echo -e "MUT"
+		echo -e "MUT |"
 	fi
 }
 
 dte() {
 	currentdatetime
-	echo -en "$dte"
+	echo -en "\x02$dte\x01" | tr [:lower:] [:upper:]
 }
 
-xsetroot -name "DSK $(dsk) | MEM $(mem) | CPU $(cpu) `echo "0 $cpu 100"|spark` | TMP $(tmp) | NET $(net) | PKG $(pac) | BAT $(bat) | $(dte)"
-
+xsetroot -name "$(upt) $(dsk) $(mem) $(cpu) $(tmp) $(net) $(pac) $(bat) $(dte)"
 
